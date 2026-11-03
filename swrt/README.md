@@ -3,7 +3,8 @@
 SWRT (sparse Webb–Resio–Tracy) computes the nonlinear four-wave interactions S_nl from K configurations of the WRT
 quadrature table, each a quadruplet and its mirror image, with one optimized coefficient per configuration. This patch adds
 SWRT to ecWAM as an alternative to the Discrete Interaction Approximation (DIA) in `SNONLIN`. In a 24-h global test, SWRT
-keeps the significant wave height within 1 % of WRT at 1.6 times the time per step of DIA.
+keeps the significant wave height within 1 % of WRT, compared with 15 % for DIA, and takes 1.6 times the time per step of
+DIA.
 
 The changes, the SWRT files and this guide are on the branch `swrt` of
 [Jialunx/ecwam](https://github.com/Jialunx/ecwam/tree/swrt), a fork of [ecmwf-ifs/ecwam](https://github.com/ecmwf-ifs/ecwam)
@@ -26,11 +27,11 @@ The patch adds one source file and changes eight others. The default `INLSCHEME 
 Four properties of `SNONLIN_SWRT` matter for ecWAM.
 
 - **Vectorization.** The innermost loop runs over the grid points of a block (NPROMA). The arithmetic is in single
-  precision, and subnormal numbers are flushed to zero inside the routine.
+  precision, and subnormal numbers are flushed to zero inside this routine only.
 - **Directions.** The anticlockwise direction index of the SWRT file is mapped onto the clockwise index of ecWAM.
 - **Depth.** The SWRT files hold the deep-water interactions, and the shallow-water factor of `SNONLIN` (`ISNONLIN`) scales
   them as it scales DIA.
-- **Diagonal term.** ∂S_nl/∂F follows Xnl and enters the implicit integration of ecWAM.
+- **Diagonal term.** ∂S_nl/∂F is computed as in Xnl and enters the implicit integration of ecWAM.
 
 ## 2. Installation
 
@@ -56,21 +57,23 @@ curl -LO https://raw.githubusercontent.com/Jialunx/ecwam/swrt/swrt/files/swrt_ec
 curl -LO https://raw.githubusercontent.com/Jialunx/ecwam/swrt/swrt/files/wrt_table_K807.ww3op
 ```
 
-| SWRT file | Configurations | Offsets | Use |
-|---|---|---|---|
-| `swrt_ec4x_K31L13.ww3op` | 31 | 13 | SWRT, with the smallest training error at four times the S_nl cost of DIA |
-| `wrt_table_K807.ww3op` | 807 | 74 | WRT, all configurations with coefficient 1, for reference runs |
+| SWRT file | Method | Configurations | Offsets | Use |
+|---|---|---|---|---|
+| `swrt_ec4x_K31L13.ww3op` | SWRT | 31 | 13 | runs with SWRT, selected for four times the S_nl cost of DIA |
+| `wrt_table_K807.ww3op` | WRT | 807 | 74 | reference runs, all configurations with coefficient 1 |
 
 ## 3. Spectral grid
 
 The SWRT files depend on the spectral grid only, not on the spatial grid or the time step. They are built for the spectral
-grid of the ECMWF operational configuration, with 36 directions and the 36 source-term frequencies 0.0345 Hz × 1.1^(m−1)
-(fr1 = 4.177248E-02 at ifre1 = 3). The same files therefore serve any spatial resolution with this spectral grid, such as
-O48 or O1280.
+grid of the ECMWF operational configuration, with 36 directions and 36 source-term frequencies from 0.0345 Hz with a ratio
+of 1.1 (fr1 = 4.177248E-02 at ifre1 = 3). The same files therefore serve any spatial resolution with this spectral grid, such
+as O48 or O1280.
 
-A change in the number of directions, the number of frequencies, the first frequency or the frequency ratio needs new files.
-The model checks the file against its spectral grid at the start and stops with a message when they differ. New files are
-built offline from Xnl with the SWRT scripts in about an hour, and the code stays unchanged.
+A change in the number of directions, the number of frequencies, the first frequency or the frequency ratio needs a new SWRT
+file. The model compares the file with its spectral grid at the start and stops with a message when they differ. The scripts
+in `tools/` of the SWRT code archive ([doi:10.5281/zenodo.23654016](https://doi.org/10.5281/zenodo.23654016)) build a new
+file from Xnl for any spectral grid in about an hour, and the code of ecWAM stays unchanged. The first frequency of the new
+file is the first source-term frequency of ecWAM, fr1 / 1.1^(ifre1−1).
 
 ## 4. Running
 
@@ -98,7 +101,8 @@ message when the variable is unset or the file is missing.
 ### 5.1 Synthetic spectra
 
 The error ε of the direction-integrated S_nl (van Vledder 2006, Eq. 58) is computed against WRT on 300 synthetic spectra
-that were not used in the selection, half of them single-peaked and half bimodal.
+that were not used in the selection, half of them single-peaked and half bimodal. SWRT follows WRT closely, whereas the
+error of DIA exceeds the magnitude of S_nl itself.
 
 | Method | Median ε (%) | 95th percentile of ε (%) |
 |---|---|---|
@@ -121,12 +125,12 @@ summed over the hourly outputs from t = 1 h and over the sea points where H_s of
 SWRT keeps the significant wave height within 1 % of WRT at every hour and nearly everywhere, while DIA gives 15 % higher
 values (Figs. 1 and 2).
 
-![Fig. 1](figs/fig_ec_global_bulk.svg)
+![Fig. 1](figs/fig_ec_global_bulk.png)
 
 **Fig. 1.** Global statistics of the 24-h ecWAM test with S_nl from WRT (thick gray line), DIA (dashed) and SWRT with K = 31
 (circles). (a) Mean H_s over the sea points; (b) ε_Hs and (c) ε_Tz at each hour.
 
-![Fig. 2](figs/fig_ec_global_maps.svg)
+![Fig. 2](figs/fig_ec_global_maps.png)
 
 **Fig. 2.** ε_Hs at each sea point over the 24-h ecWAM test for (a) DIA and (b) SWRT with K = 31, with ε_Hs over all points
 under each map. Seas without a value are white, mostly the ice-covered polar seas.
@@ -143,7 +147,7 @@ DIA.
 
 S_nl takes about a fifth of a time step with DIA, half with SWRT and nearly all of it with WRT (Fig. 3).
 
-![Fig. 3](figs/fig_ec_cost.svg)
+![Fig. 3](figs/fig_ec_cost.png)
 
 **Fig. 3.** Cost of S_nl in the 24-h ecWAM test. (a) Cost of SWRT with K = 31 (white) and WRT (black) relative to DIA (dashed
 line) for one S_nl call, one time step and the run; (b) time per time step, split into S_nl, the other source terms and
