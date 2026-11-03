@@ -26,8 +26,8 @@ The patch adds one source file and changes eight others. The default `INLSCHEME 
 
 Four properties of `SNONLIN_SWRT` matter for ecWAM.
 
-- **Vectorization.** The innermost loop runs over the grid points of a block (NPROMA). The arithmetic is in single
-  precision, and subnormal numbers are flushed to zero inside this routine only.
+- **Vectorization.** The innermost loop runs over the grid points of a block (NPROMA), for SWRT and WRT alike. The
+  arithmetic is in single precision, and subnormal numbers are flushed to zero inside this routine only.
 - **Directions.** The anticlockwise direction index of the SWRT file is mapped onto the clockwise index of ecWAM.
 - **Depth.** The SWRT files hold the deep-water interactions, and the shallow-water factor of `SNONLIN` (`ISNONLIN`) scales
   them as it scales DIA.
@@ -138,7 +138,8 @@ under each map. Seas without a value are white, mostly the ice-covered polar sea
 ### 5.3 Cost
 
 The cost is measured with DR_HOOK in the optimized build of the 24-h runs, on one of four MPI tasks, and is given relative to
-DIA.
+DIA. WRT runs through the same vectorized routine as SWRT, and the difference in cost therefore comes from the numbers of
+configurations and offsets alone.
 
 | Method | S_nl | Time step | Run |
 |---|---|---|---|
