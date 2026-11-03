@@ -23,7 +23,7 @@ The patch adds one source file and changes eight others. The default `INLSCHEME 
 | `src/ecwam/CMakeLists.txt` | Adds the new file to the build. |
 | `share/ecwam/scripts/ecwam_run_model.sh` | Passes `isnonlin`, `inlscheme` and `swrt_operator` of the yml settings to the namelist and the environment. |
 
-`SNONLIN_SWRT` follows the NL6 module of WAVEWATCH III.
+Four properties of `SNONLIN_SWRT` matter for ecWAM.
 
 - **Vectorization.** The innermost loop runs over the grid points of a block (NPROMA). The arithmetic is in single
   precision, and subnormal numbers are flushed to zero inside the routine.
