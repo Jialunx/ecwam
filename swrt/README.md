@@ -61,11 +61,18 @@ curl -LO https://raw.githubusercontent.com/Jialunx/ecwam/swrt/swrt/files/wrt_tab
 | `swrt_ec4x_K31L13.ww3op` | 31 | 13 | SWRT, with the smallest training error at four times the S_nl cost of DIA |
 | `wrt_table_K807.ww3op` | 807 | 74 | WRT, all configurations with coefficient 1, for reference runs |
 
-The files are built for the spectral grid of the ECMWF operational configuration, with 36 directions and the 36 source-term
-frequencies 0.0345 Hz × 1.1^(m−1) (fr1 = 4.177248E-02 at ifre1 = 3). Other spectral grids need new files, which the SWRT
-scripts generate offline from Xnl.
+## 3. Spectral grid
 
-## 3. Running
+The SWRT files depend on the spectral grid only, not on the spatial grid or the time step. They are built for the spectral
+grid of the ECMWF operational configuration, with 36 directions and the 36 source-term frequencies 0.0345 Hz × 1.1^(m−1)
+(fr1 = 4.177248E-02 at ifre1 = 3). The same files therefore serve any spatial resolution with this spectral grid, such as
+O48 or O1280.
+
+A change in the number of directions, the number of frequencies, the first frequency or the frequency ratio needs new files.
+The model checks the file against its spectral grid at the start and stops with a message when they differ. New files are
+built offline from Xnl with the SWRT scripts in about an hour, and the code stays unchanged.
+
+## 4. Running
 
 | Setting | Where | Value |
 |---|---|---|
@@ -84,11 +91,11 @@ physics:
 ```
 
 The log file `wam.log` names the scheme, the SWRT file, and its numbers of configurations and offsets. The model stops with a
-message when the variable is unset, the file is missing, or the file does not match the spectral grid.
+message when the variable is unset or the file is missing.
 
-## 4. Test results
+## 5. Test results
 
-### 4.1 Synthetic spectra
+### 5.1 Synthetic spectra
 
 The error ε of the direction-integrated S_nl (van Vledder 2006, Eq. 58) is computed against WRT on 300 synthetic spectra
 that were not used in the selection, half of them single-peaked and half bimodal.
@@ -98,7 +105,7 @@ that were not used in the selection, half of them single-peaked and half bimodal
 | SWRT with K = 31 | 8 | 18 |
 | DIA of ecWAM | 125 | 190 |
 
-### 4.2 Global test
+### 5.2 Global test
 
 The global test extends the regression case `etopo1_oper_an_fc_O48` of ecWAM to 24 h on the 36 × 29 spectral grid, from
 12 UTC 31 December 2022 to 12 UTC 1 January 2023. It starts from rest with the ECMWF operational 10-m winds and sea ice, the
@@ -124,7 +131,7 @@ values (Figs. 1 and 2).
 **Fig. 2.** ε_Hs at each sea point over the 24-h ecWAM test for (a) DIA and (b) SWRT with K = 31, with ε_Hs over all points
 under each map. Seas without a value are white, mostly the ice-covered polar seas.
 
-### 4.3 Cost
+### 5.3 Cost
 
 The cost is measured with DR_HOOK in the optimized build of the 24-h runs, on one of four MPI tasks, and is given relative to
 DIA.
