@@ -204,6 +204,7 @@ SUBROUTINE INITMDL (NADV,                                 &
      &            IREFRA   ,LNSESTART, LLSOURCE,                        &
      &            IPHYS    ,                                            &
      &            CDATEA   ,MARSTYPE ,LANAONLY ,ISNONLIN ,IPROPAGS ,    &
+     &            INLSCHEME,                                            &
      &            IDELWI_LST,IDELWO_LST,CDTW_LST,NDELW_LST
       USE YOWTABL  , ONLY : FAC0     ,FAC1     ,FAC2     ,FAC3     ,    &
      &                      FAK      ,FRHF     ,DFIMHF
@@ -231,6 +232,7 @@ SUBROUTINE INITMDL (NADV,                                 &
       USE YOMHOOK  , ONLY : LHOOK,   DR_HOOK, JPHOOK
       USE EC_LUN   , ONLY : NULERR
       USE OML_MOD  , ONLY : OML_GET_MAX_THREADS
+      USE SNONLIN_SWRT_MOD, ONLY : INISNONLIN_SWRT
 
 ! -------------------------------------------------------------------
 
@@ -1047,6 +1049,7 @@ IF (LHOOK) CALL DR_HOOK('INITMDL',0,ZHOOK_HANDLE)
 !         ------------------------------------------------------------
 
       CALL INISNONLIN
+      IF (INLSCHEME == 1) CALL INISNONLIN_SWRT
 
 
 !*    9.3 HIGHER HARMONICS TABLES

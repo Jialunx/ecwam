@@ -53,6 +53,7 @@
       INTEGER(KIND=JWIM) :: ICASE
       INTEGER(KIND=JWIM) :: ISHALLO
       INTEGER(KIND=JWIM) :: ISNONLIN
+      INTEGER(KIND=JWIM) :: INLSCHEME
       INTEGER(KIND=JWIM) :: IPHYS
       INTEGER(KIND=JWIM) :: IREFRA
       INTEGER(KIND=JWIM) :: IPROPAGS=-1
@@ -163,6 +164,9 @@
 !                            OTHERWISE  SHALLOW WATER MODEL.
 !      *ISNONLIN*  INTEGER   SNONLIN FLAG
 !                            = 0 THE OLD FORMULATION IS USED.
+!      *INLSCHEME* INTEGER   NONLINEAR TRANSFER SCHEME
+!                            = 0 DIA (SNONLIN), = 1 SWRT (SNONLIN_SWRT).
+!                            ISNONLIN SETS THE SHALLOW WATER SCALING OF BOTH.
 !      *IREFRA*    INTEGER   REFRACTION OPTION..
 !                            = 0  NO REFRACTION.
 !                            = 1 DEPTH REFRACTION ONLY.

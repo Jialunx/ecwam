@@ -75,7 +75,8 @@
  &                          ZALPFACX
       USE YOWPARAM , ONLY : NANG     ,NFRE
       USE YOWPCONS , ONLY : WSEMEAN_MIN, ROWATERM1
-      USE YOWSTAT  , ONLY : IDELT    ,XIMP
+      USE YOWSTAT  , ONLY : IDELT    ,XIMP     ,INLSCHEME
+      USE SNONLIN_SWRT_MOD, ONLY : SNONLIN_SWRT
 
       USE YOMHOOK  , ONLY : LHOOK,   DR_HOOK, JPHOOK
 
@@ -226,7 +227,11 @@ IF (LHOOK) CALL DR_HOOK('WDFLUXES',0,ZHOOK_HANDLE)
           SSOURCE(:,:,:) = SL(:,:,:)
         ENDIF
 
-        CALL SNONLIN (KIJS, KIJL, FL1, FLD, SL, WAVNUM, DEPTH, AKMEAN)
+        IF (INLSCHEME == 1) THEN
+          CALL SNONLIN_SWRT (KIJS, KIJL, FL1, FLD, SL, WAVNUM, DEPTH, AKMEAN)
+        ELSE
+          CALL SNONLIN (KIJS, KIJL, FL1, FLD, SL, WAVNUM, DEPTH, AKMEAN)
+        ENDIF
 
         IF (LWVFLX_SNL) THEN
 !         Save source term contributions relevant for the calculation of ocean fluxes

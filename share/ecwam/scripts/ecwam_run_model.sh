@@ -109,6 +109,12 @@ lciwa1=$(read_config physics.lciwa1 --default=F)
 lciwa2=$(read_config physics.lciwa2 --default=F)
 lciwa3=$(read_config physics.lciwa3 --default=F)
 lciscal=$(read_config physics.lciscal --default=F)
+isnonlin=$(read_config physics.isnonlin --default=0)
+inlscheme=$(read_config physics.inlscheme --default=0)
+swrt_operator=$(read_config physics.swrt_operator --default="")
+if [[ -n "${swrt_operator}" ]]; then
+  export WAM_SWRT_OPERATOR=${swrt_operator}
+fi
 
 nproma=$(read_config nproma --default=24)
 
@@ -284,7 +290,8 @@ cat > wam_namelist << EOF
   IPHYS                 = ${iphys},
   LLGCBZ0               = ${llgcbz0},
   LLNORMAGAM            = ${llnormagam},
-  ISNONLIN              = 0,
+  ISNONLIN              = ${isnonlin},
+  INLSCHEME             = ${inlscheme},
   LICERUN               = ${licerun},
   LMASKICE              = ${lmaskice},
   LCIWA1                = ${lciwa1},

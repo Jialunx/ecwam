@@ -91,7 +91,8 @@ SUBROUTINE IMPLSCH (KIJS, KIJL, FL1,                         &
  &                          ZALPFACX
       USE YOWPARAM , ONLY : NANG     ,NFRE     ,LLUNSTR
       USE YOWPCONS , ONLY : WSEMEAN_MIN, ROWATERM1
-      USE YOWSTAT  , ONLY : IDELT    ,LBIWBK   ,XIMP
+      USE YOWSTAT  , ONLY : IDELT    ,LBIWBK   ,XIMP     ,INLSCHEME
+      USE SNONLIN_SWRT_MOD, ONLY : SNONLIN_SWRT
       USE YOWWNDG  , ONLY : ICODE    ,ICODE_CPL
       USE YOMHOOK  , ONLY : LHOOK,   DR_HOOK, JPHOOK
 
@@ -289,7 +290,11 @@ IF (LHOOK) CALL DR_HOOK('IMPLSCH',0,ZHOOK_HANDLE)
         ENDDO
       ENDIF
 
-      CALL SNONLIN (KIJS, KIJL, FL1, FLD, SL, WAVNUM, DEPTH, AKMEAN)
+      IF (INLSCHEME == 1) THEN
+        CALL SNONLIN_SWRT (KIJS, KIJL, FL1, FLD, SL, WAVNUM, DEPTH, AKMEAN)
+      ELSE
+        CALL SNONLIN (KIJS, KIJL, FL1, FLD, SL, WAVNUM, DEPTH, AKMEAN)
+      ENDIF
 
       IF (LCFLX .AND. LWVFLX_SNL) THEN
 !     Save source term contributions relevant for the calculation of ocean fluxes

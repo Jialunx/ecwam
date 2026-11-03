@@ -128,7 +128,7 @@ SUBROUTINE USERIN (IFORCA, LWCUR)
      &            IDELWO   ,IDELALT  ,IREST    ,IDELRES  ,IDELINT  ,    &
      &            IDELBC   ,                                            &
      &            ICASE    ,                                            &
-     &            ISNONLIN ,                                            &
+     &            ISNONLIN ,INLSCHEME,                                  &
      &            IPHYS    ,                                            &
      &            IDAMPING ,                                            &
      &            LBIWBK   ,                                            &
@@ -781,6 +781,17 @@ SUBROUTINE USERIN (IFORCA, LWCUR)
         WRITE(IU06,*) ' WARNING: DO NOT KNOW WHICH SNONLIN TO USE !'
         WRITE(IU06,*) ' !!!! THIS ISNONLIN IS NOT YET AVAILABLE !!!'
         WRITE(IU06,*) ' !!!! WARNING: ISNONLIN = ',ISNONLIN
+        WRITE(IU06,*) ' '
+        CALL WAM_ABORT(__FILENAME__,__LINE__)
+      ENDIF
+      IF (INLSCHEME == 0) THEN
+        WRITE(IU06,*) ' NONLINEAR TRANSFER: DIA (INLSCHEME = 0) '
+      ELSEIF (INLSCHEME == 1) THEN
+        WRITE(IU06,*) ' NONLINEAR TRANSFER: SWRT (INLSCHEME = 1), OPERATOR FROM WAM_SWRT_OPERATOR '
+      ELSE
+        WRITE(IU06,*) ' WARNING: DO NOT KNOW WHICH NONLINEAR TRANSFER SCHEME TO USE !'
+        WRITE(IU06,*) ' !!!! INLSCHEME MUST BE 0 (DIA) OR 1 (SWRT) !!!'
+        WRITE(IU06,*) ' !!!! WARNING: INLSCHEME = ',INLSCHEME
         WRITE(IU06,*) ' '
         CALL WAM_ABORT(__FILENAME__,__LINE__)
       ENDIF

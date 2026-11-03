@@ -99,7 +99,7 @@
      &            IDELBC   ,                                            &
      &            ICASE    ,ISHALLO  ,                                  &
      &            IPHYS    ,                                            &
-     &            ISNONLIN ,                                            &
+     &            ISNONLIN ,INLSCHEME,                                  &
      &            IDAMPING ,                                            &
      &            LBIWBK   ,                                            &
      &            IREFRA   ,IPROPAGS ,IASSI    ,                        &
@@ -196,6 +196,7 @@
      &   IREFRA,                                                        &
      &   IPHYS,                                                         &
      &   ISNONLIN,                                                      &
+     &   INLSCHEME,                                                     &
      &   IDAMPING,                                                      &
      &   LBIWBK  ,                                                      &
      &   LMASKICE,                                                      &
@@ -337,6 +338,8 @@
 !     IASSI: 1 ASSIMILATION IS DONE IF ANALYSIS RUN.
 !     IPHYS:  WAVE PHYSICS PACKAGE (0 or 1)
 !     ISNONLIN : 0 FOR OLD SNONLIN, 1 FOR NEW SNONLIN, 2 FOR LATEST BASED ON JANSSEN 2018 (ECMWF TM 813).
+!     INLSCHEME : NONLINEAR TRANSFER: 0 DIA (DEFAULT), 1 SWRT (OPERATOR FILE FROM
+!                 ENVIRONMENT VARIABLE WAM_SWRT_OPERATOR). ISNONLIN SETS THE DEPTH SCALING.
 !     IDAMPING : 0 NO WAVE DAMPING, 1 WAVE DAMPING ON.
 !                ONLY MEANINGFUl FOR IPHYS=0
 !     NDEPTH   NUMBER OF ENTRIED IN DEPTH TABLE (if used) 
@@ -609,6 +612,7 @@
       ISHALLO   = 0   !! depricated 
       IPHYS     = 1
       ISNONLIN  = 0 
+      INLSCHEME = 0 
       IDAMPING  = 1 
       IPROPAGS  = 0 
       IREFRA    = 0 
