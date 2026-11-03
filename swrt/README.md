@@ -24,14 +24,9 @@ The patch adds one source file and changes eight others. The default `INLSCHEME 
 | `src/ecwam/CMakeLists.txt` | Adds the new file to the build. |
 | `share/ecwam/scripts/ecwam_run_model.sh` | Passes `isnonlin`, `inlscheme` and `swrt_operator` of the yml settings to the namelist and the environment. |
 
-Four properties of `SNONLIN_SWRT` matter for ecWAM.
-
-- **Vectorization.** The innermost loop runs over the grid points of a block (NPROMA), for SWRT and WRT alike. The
-  arithmetic is in single precision, and subnormal numbers are flushed to zero inside this routine only.
-- **Directions.** The anticlockwise direction index of the SWRT file is mapped onto the clockwise index of ecWAM.
-- **Depth.** The SWRT files hold the deep-water interactions, and the shallow-water factor of `SNONLIN` (`ISNONLIN`) scales
-  them as it scales DIA.
-- **Diagonal term.** ∂S_nl/∂F is computed as in Xnl and enters the implicit integration of ecWAM.
+`SNONLIN_SWRT` computes in single precision, with the grid points of an NPROMA block as the innermost loop, and flushes
+subnormal numbers to zero inside this routine only. The SWRT files hold the deep-water interactions, which `ISNONLIN` scales
+in shallow water as it scales DIA.
 
 ## 2. Installation
 
