@@ -127,15 +127,16 @@ error of DIA exceeds the magnitude of S_nl itself.
 | DIA of ecWAM | 125 | 190 |
 
 ERA5 spectra on their own grid of 24 directions and 30 frequencies give a similar result. Over 1171 deep-water ERA5 spectra on a 5°
-grid at 00 UTC 1 January 2019, the median ε is 8 % for SWRT with the ERA5 file of section 3 (K = 29) and 72 % for DIA. In a bimodal
-example with ε of 8 % for SWRT and 58 % for DIA, SWRT reproduces the transfer of WRT in frequency and direction, whereas DIA
-overestimates the negative lobe above the wind-sea peak by half and spreads its positive lobe over a wider range of directions (Fig. 1).
+grid at 00 UTC 1 January 2019, the median ε is 8 % for SWRT with the ERA5 file of section 3 (K = 29) and 72 % for DIA. In a
+single-peaked and a bimodal example, with ε of 8 and 10 % for SWRT and 58 and 61 % for DIA, SWRT reproduces the transfer of WRT in
+frequency and direction, whereas DIA overestimates its largest values by a factor of 1.6 and 2 and adds transfer at directions
+where WRT has none (Fig. 1).
 
-![Fig. 1](figs/fig_ec_era5_snl2d.png)
+![Fig. 1](figs/fig_ec_era5_snl_examples.png)
 
-**Fig. 1.** A bimodal ERA5 spectrum at 65° S, 175° W at 00 UTC 1 January 2019, with a swell and a wind sea. (a) E(f, θ);
-(b)–(d) S_nl(f, θ) from WRT, SWRT with K = 29 and DIA, divided by the largest |S_nl| of WRT, with the contour E = E_max / 10 in
-grey. Directions are relative to the mean direction θ̄.
+**Fig. 1.** Two ERA5 spectra at 00 UTC 1 January 2019, (a)–(d) a single-peaked wind sea at 20° N, 120° E and (e)–(h) a bimodal sea
+at 10° S, 160° E. (a, e) E(f, θ) / E_max; (b–d, f–h) S_nl(f, θ) from WRT, SWRT with K = 29 and DIA, divided by the largest |S_nl|
+of WRT, with the contour E = E_max / 10 in grey. Directions are relative to the mean direction θ̄.
 
 ### 5.2 Global test
 
