@@ -67,34 +67,27 @@ curl -LO https://raw.githubusercontent.com/Jialunx/ecwam/swrt/swrt/files/wrt_tab
 
 ## 3. Spectral grid
 
-The SWRT files depend on the spectral grid only, not on the spatial grid or the time step. Each file therefore serves any spatial
-resolution, such as the octahedral reduced Gaussian grids O48 (about 200 km) and O1280 (about 9 km) of ecWAM. The spectral grid
-is set by the number of directions, the number NFRE of source-term frequencies, and the reference frequency fr1 of bin ifre1
-(`fr1` and `ifre1` in the yml file). The frequency ratio of ecWAM is fixed at 1.1, and bin m has the frequency fr1 × 1.1^(m−ifre1).
-The first frequencies of the table below come from fr1 = 4.177248E-02 Hz at ifre1 = 3 (0.0345 Hz) or ifre1 = 1 (0.0418 Hz),
-and from fr1 = 0.055 Hz at ifre1 = 1. The standalone scripts set NFRE = 36, and `frequencies` in the yml file sets only the
-number of propagated frequencies.
+The SWRT files depend on the spectral grid only, not on the spatial grid or the time step. The spectral grid of ecWAM is set by
+the number of directions, the number NFRE of source-term frequencies, and the reference frequency fr1 of bin ifre1, and its
+frequency ratio is fixed at 1.1. The branch holds SWRT files for the common spectral grids below, each selected as the
+operational file is, for about four times the S_nl cost of DIA.
 
-The branch holds SWRT files for the common spectral grids below, from the configurations of ECMWF and the regression tests of
-ecWAM in `tests/`. Each file is selected on its own grid as the operational file is, for about four times the S_nl cost of DIA. In the
-24-h global test of section 5.2 on the same spectral grid, SWRT keeps ε_Hs below 1 %, compared with 13 to 26 % for DIA.
+| SWRT file | Directions | NFRE | First frequency (Hz) | Ratio |
+|---|---|---|---|---|
+| `swrt_ec4x_K31L13.ww3op` | 36 | 36 | 0.0345 | 1.1 |
+| `swrt_d24_f0345_K27L16.ww3op` | 24 | 36 | 0.0345 | 1.1 |
+| `swrt_d24_n30_f0345_K29L14.ww3op` | 24 | 30 | 0.0345 | 1.1 |
+| `swrt_d24_n40_f0345_K27L16.ww3op` | 24 | 40 | 0.0345 | 1.1 |
+| `swrt_d12_f0418_K29L14.ww3op` | 12 | 36 | 0.0418 | 1.1 |
+| `swrt_d24_f0418_K27L16.ww3op` | 24 | 36 | 0.0418 | 1.1 |
+| `swrt_d36_f055_K29L14.ww3op` | 36 | 36 | 0.055 | 1.1 |
 
-| SWRT file | Directions | NFRE | First frequency (Hz) | Ratio | Spectral grid of | ε_Hs SWRT / DIA (%) |
-|---|---|---|---|---|---|---|
-| `swrt_ec4x_K31L13.ww3op` | 36 | 36 | 0.0345 | 1.1 | operations, test O1280 | 0.7 / 15 |
-| `swrt_d24_f0345_K27L16.ww3op` | 24 | 36 | 0.0345 | 1.1 | test O320 | 0.3 / 17 |
-| `swrt_d24_n30_f0345_K29L14.ww3op` | 24 | 30 | 0.0345 | 1.1 | ERA5 | 0.3 / 20 |
-| `swrt_d24_n40_f0345_K27L16.ww3op` | 24 | 40 | 0.0345 | 1.1 | – | 0.8 / 16 |
-| `swrt_d12_f0418_K29L14.ww3op` | 12 | 36 | 0.0418 | 1.1 | test O48 | 0.5 / 26 |
-| `swrt_d24_f0418_K27L16.ww3op` | 24 | 36 | 0.0418 | 1.1 | test O96 | 0.3 / 16 |
-| `swrt_d36_f055_K29L14.ww3op` | 36 | 36 | 0.055 | 1.1 | test lam_highres | 0.4 / 13 |
-
-A run names the file of its spectral grid in `swrt_operator` (section 4), and a change in the number of directions, NFRE, fr1 or
-ifre1 needs the file of the new grid. The model compares the file with its spectral grid at the start and stops with a message when
-they differ. The files with 30 and 40 frequencies also need NFRE = 30 or 40 in namelist NALINE, which the standalone scripts set to
-36 in `ecwam_run_preproc.sh`, `ecwam_run_preset.sh` and `ecwam_run_model.sh`. Other spectral grids need a new file. The scripts in `tools/` of the SWRT code
-archive ([doi:10.5281/zenodo.23654016](https://doi.org/10.5281/zenodo.23654016)) build one from Xnl in about an hour, and the
-code of ecWAM stays unchanged.
+The first frequencies 0.0345, 0.0418 and 0.055 Hz correspond to fr1 = 4.177248E-02 Hz at ifre1 = 3, the same fr1 at ifre1 = 1,
+and fr1 = 0.055 Hz at ifre1 = 1. A run names the file of its spectral grid in `swrt_operator` (section 4), and the model stops
+with a message when the file and the grid differ. The files with 30 and 40 frequencies also need NFRE = 30 or 40 in namelist
+NALINE, which the standalone scripts set to 36. The scripts in `tools/` of the SWRT code archive
+([doi:10.5281/zenodo.23654016](https://doi.org/10.5281/zenodo.23654016)) build a file for any other spectral grid in about an
+hour.
 
 ## 4. Running
 
