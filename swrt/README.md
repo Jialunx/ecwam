@@ -126,8 +126,8 @@ error of DIA exceeds the magnitude of S_nl itself.
 | SWRT with K = 31 | 8 | 18 |
 | DIA of ecWAM | 125 | 190 |
 
-ERA5 spectra on their own grid of 24 directions and 30 frequencies give a similar result. Over 1171 deep-water ERA5 spectra on a 5°
-grid at 00 UTC 1 January 2019, the median ε is 8 % for SWRT with the ERA5 file of section 3 and 72 % for DIA. In an example of a
+ERA5 spectra exist only on the grid of ERA5, 24 directions and 30 frequencies, and are tested with the ERA5 file of section 3.
+Over 1171 deep-water ERA5 spectra on a 5° grid at 00 UTC 1 January 2019, the median ε is 8 % for SWRT and 72 % for DIA. In an example of a
 wind sea with a swell, with ε of 8 % for SWRT and 55 % for DIA, SWRT reproduces the transfer of WRT in frequency and direction,
 whereas DIA overestimates its largest value by a factor of 1.6 and adds transfer at directions where WRT has none (Fig. 1).
 
@@ -138,7 +138,7 @@ whereas DIA overestimates its largest value by a factor of 1.6 and adds transfer
 
 ### 5.2 Global test
 
-The global test extends the regression case `etopo1_oper_an_fc_O48` of ecWAM to 24 h on the 36 × 29 spectral grid, from
+The global test extends the regression case `etopo1_oper_an_fc_O48` of ecWAM to 24 h on the operational spectral grid of 36 × 36, of which 29 frequencies are propagated, from
 12 UTC 31 December 2022 to 12 UTC 1 January 2023. It starts from rest with the ECMWF operational 10-m winds and sea ice, the
 physics of iphys = 1 and time steps of 900 s. The errors ε_Hs and ε_Tz are the relative differences from the run with WRT,
 summed over the hourly outputs from t = 1 h and over the sea points where H_s of WRT is at least 0.1 m.
