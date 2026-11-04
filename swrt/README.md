@@ -65,6 +65,13 @@ curl -LO https://raw.githubusercontent.com/Jialunx/ecwam/swrt/swrt/files/wrt_tab
 | `swrt_ec4x_K31L13.ww3op` | SWRT | 31 | 13 | runs with SWRT, selected for four times the S_nl cost of DIA |
 | `wrt_table_K807.ww3op` | WRT | 807 | 74 | reference runs, all configurations with coefficient 1 |
 
+<!-- web -->
+The animation follows a session in time-lapse, from the clone of the branch to a run of the regression test
+`etopo1_oper_an_fc_O48` of ecWAM with the SWRT file of its spectral grid.
+
+![Install and run](figs/swrt_install_run.gif)
+<!-- /web -->
+
 ## 3. Spectral grid
 
 The SWRT files depend on the spectral grid only, not on the spatial grid or the time step. The spectral grid of ecWAM is set by
