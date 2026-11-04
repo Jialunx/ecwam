@@ -17,16 +17,24 @@ The patch adds one source file and changes eight others. The default `INLSCHEME 
 | File | Change |
 |---|---|
 | `src/ecwam/snonlin_swrt.F90` (new) | `INISNONLIN_SWRT` reads the SWRT file and checks it against the spectral grid. `SNONLIN_SWRT` takes the arguments of `SNONLIN` and adds S_nl to `SL` and its diagonal term to `FLD`. |
-| `src/ecwam/yowstat.F90`, `mpuserin.F90` | New switch `INLSCHEME` in namelist `NALINE`, 0 for DIA (default) and 1 for SWRT. |
+| `src/ecwam/yowstat.F90` | Declares the switch `INLSCHEME`. |
+| `src/ecwam/mpuserin.F90` | Reads `INLSCHEME` in namelist `NALINE`, 0 for DIA (default) and 1 for SWRT. |
 | `src/ecwam/userin.F90` | Writes the scheme to `wam.log` and stops for other values. |
 | `src/ecwam/initmdl.F90` | Calls `INISNONLIN_SWRT` when `INLSCHEME = 1`. |
-| `src/ecwam/implsch.F90`, `wdfluxes.F90` | Call `SNONLIN_SWRT` instead of `SNONLIN` when `INLSCHEME = 1`. |
+| `src/ecwam/implsch.F90` | Calls `SNONLIN_SWRT` instead of `SNONLIN` in the source-term integration when `INLSCHEME = 1`. |
+| `src/ecwam/wdfluxes.F90` | Calls `SNONLIN_SWRT` instead of `SNONLIN` for the wave-dependent fluxes at the initial time when `INLSCHEME = 1`. |
 | `src/ecwam/CMakeLists.txt` | Adds the new file to the build. |
 | `share/ecwam/scripts/ecwam_run_model.sh` | Passes `isnonlin`, `inlscheme` and `swrt_operator` of the yml settings to the namelist and the environment. |
 
 `SNONLIN_SWRT` computes in single precision, with the grid points of an NPROMA block as the innermost loop, and flushes
 subnormal numbers to zero inside this routine only. The SWRT files hold the deep-water interactions, which `ISNONLIN` scales
 in shallow water as it scales DIA.
+
+As in `SNONLIN`, the diagonal term is the derivative of S_nl at a spectral bin with respect to the spectral density at that
+bin. Each quadruplet of SWRT moves action from k_3 to k_1, its two wavenumbers on the spectral grid, at a rate proportional to
+T = n_1 n_3 (n_4 − n_2) + n_2 n_4 (n_3 − n_1), where n_i is the action density at k_i and n_2 and n_4 are interpolated. The
+diagonal term of the quadruplet is proportional to ∂T/∂n_1 = n_3 (n_4 − n_2) − n_2 n_4 at k_1 and to
+−∂T/∂n_3 = −n_1 (n_4 − n_2) − n_2 n_4 at k_3, as in the WRT code Xnl (van Vledder 2006).
 
 ## 2. Installation
 
@@ -62,7 +70,8 @@ curl -LO https://raw.githubusercontent.com/Jialunx/ecwam/swrt/swrt/files/wrt_tab
 The SWRT files depend on the spectral grid only, not on the spatial grid or the time step. They are built for the spectral
 grid of the ECMWF operational configuration, with 36 directions and 36 source-term frequencies from 0.0345 Hz with a ratio
 of 1.1 (fr1 = 4.177248E-02 at ifre1 = 3). The same files therefore serve any spatial resolution with this spectral grid, such
-as O48 or O1280.
+as the octahedral reduced Gaussian grids O48 (about 200 km) and O1280 (about 9 km) of ecWAM. The regression case
+`etopo1_oper_an_fc_O1280` of ecWAM already uses this spectral grid.
 
 A change in the number of directions, the number of frequencies, the first frequency or the frequency ratio needs a new SWRT
 file. The model compares the file with its spectral grid at the start and stops with a message when they differ. The scripts
