@@ -68,19 +68,22 @@ curl -LO https://raw.githubusercontent.com/Jialunx/ecwam/swrt/swrt/files/wrt_tab
 ## 3. Spectral grid
 
 The SWRT files depend on the spectral grid only, not on the spatial grid or the time step. The spectral grid of ecWAM is set by
-the number of directions, the number NFRE of source-term frequencies, and the reference frequency fr1 of bin ifre1, and its
-frequency ratio is fixed at 1.1. The branch holds SWRT files for the common spectral grids below, each selected as the
-operational file is, for about four times the S_nl cost of DIA.
+the number of directions, the number NFRE of frequencies, and the reference frequency fr1 of bin ifre1, and its frequency ratio
+is fixed at 1.1. NFRE is the number of frequencies of the source terms, whereas `frequencies` in the yml file sets the number of
+propagated frequencies. The branch holds SWRT files for the common spectral grids below, each selected as the operational file
+is, for about four times the S_nl cost of DIA.
 
-| SWRT file | Directions | NFRE | First frequency (Hz) | Ratio |
-|---|---|---|---|---|
-| `swrt_ec4x_K31L13.ww3op` | 36 | 36 | 0.0345 | 1.1 |
-| `swrt_d24_f0345_K27L16.ww3op` | 24 | 36 | 0.0345 | 1.1 |
-| `swrt_d24_n30_f0345_K29L14.ww3op` | 24 | 30 | 0.0345 | 1.1 |
-| `swrt_d24_n40_f0345_K27L16.ww3op` | 24 | 40 | 0.0345 | 1.1 |
-| `swrt_d12_f0418_K29L14.ww3op` | 12 | 36 | 0.0418 | 1.1 |
-| `swrt_d24_f0418_K27L16.ww3op` | 24 | 36 | 0.0418 | 1.1 |
-| `swrt_d36_f055_K29L14.ww3op` | 36 | 36 | 0.055 | 1.1 |
+<!-- compact -->
+
+| SWRT file | Directions × NFRE | First frequency (Hz) | Ratio |
+|---|---|---|---|
+| `swrt_ec4x_K31L13.ww3op` | 36 × 36 | 0.0345 | 1.1 |
+| `swrt_d24_f0345_K27L16.ww3op` | 24 × 36 | 0.0345 | 1.1 |
+| `swrt_d24_n30_f0345_K29L14.ww3op` | 24 × 30 | 0.0345 | 1.1 |
+| `swrt_d24_n40_f0345_K27L16.ww3op` | 24 × 40 | 0.0345 | 1.1 |
+| `swrt_d12_f0418_K29L14.ww3op` | 12 × 36 | 0.0418 | 1.1 |
+| `swrt_d24_f0418_K27L16.ww3op` | 24 × 36 | 0.0418 | 1.1 |
+| `swrt_d36_f055_K29L14.ww3op` | 36 × 36 | 0.055 | 1.1 |
 
 The first frequencies 0.0345, 0.0418 and 0.055 Hz correspond to fr1 = 4.177248E-02 Hz at ifre1 = 3, the same fr1 at ifre1 = 1,
 and fr1 = 0.055 Hz at ifre1 = 1. A run names the file of its spectral grid in `swrt_operator` (section 4), and the model stops
