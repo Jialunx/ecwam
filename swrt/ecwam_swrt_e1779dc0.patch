@@ -1,8 +1,8 @@
 From 0de48edf5f06290ead2f495808cdefb8762d8739 Mon Sep 17 00:00:00 2001
 From: Jialun Chen <169634920+Jialunx@users.noreply.github.com>
 Date: Tue, 3 Nov 2026 22:54:29 +0000
-Subject: [PATCH] Add SWRT for the nonlinear four-wave interactions (INLSCHEME
- = 1)
+Subject: [PATCH 1/2] Add SWRT for the nonlinear four-wave interactions
+ (INLSCHEME = 1)
 
 SWRT (sparse Webb-Resio-Tracy) computes S_nl from K configurations of the
 WRT quadrature table, each with one optimized coefficient, read from the
@@ -984,6 +984,37 @@ index 2ec2f12d..98d557cf 100644
  !      *IREFRA*    INTEGER   REFRACTION OPTION..
  !                            = 0  NO REFRACTION.
  !                            = 1 DEPTH REFRACTION ONLY.
+-- 
+2.43.0
+
+
+From 2d7494f9e17eae31050ef2b0ff0ef9abe070ab4d Mon Sep 17 00:00:00 2001
+From: Jialun Chen <169634920+Jialunx@users.noreply.github.com>
+Date: Wed, 4 Nov 2026 23:07:09 +0000
+Subject: [PATCH 2/2] SWRT log: name the configurations and offsets as the
+ guide does, and close the parenthesis
+
+wam.log now reads, for the file of the O48 test grid,
+   (swrt_d12_f0418_K29L14.npz, K = 29 CONFIGURATIONS, 58 ROWS, 14 OFFSETS, NFRE = 36, NANG = 12, DIAGONAL TERM ON)
+---
+ src/ecwam/snonlin_swrt.F90 | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/ecwam/snonlin_swrt.F90 b/src/ecwam/snonlin_swrt.F90
+index 6208e91d..99e8c1aa 100644
+--- a/src/ecwam/snonlin_swrt.F90
++++ b/src/ecwam/snonlin_swrt.F90
+@@ -255,8 +255,8 @@
+ 
+       WRITE(IU06,*) ' '
+       WRITE(IU06,*) ' SNONLIN_SWRT: SWRT OPERATOR ', TRIM(CLFILE)
+-      WRITE(IU06,'(3A,I0,A,I0,A,I0,A,I0,A,I0,2A)') '   (', TRIM(CLSRC), ', K = ', IKU, ' UNITS, ', NR, ' ROWS, ', &
+-     &   NG, ' CURVES, NFRE = ', NFRE, ', NANG = ', NANG, ', DIAGONAL TERM ', MERGE('ON ','OFF',LSWRTDIAG)
++      WRITE(IU06,'(3A,I0,A,I0,A,I0,A,I0,A,I0,3A)') '   (', TRIM(CLSRC), ', K = ', IKU, ' CONFIGURATIONS, ', NR, ' ROWS, ', &
++     &   NG, ' OFFSETS, NFRE = ', NFRE, ', NANG = ', NANG, ', DIAGONAL TERM ', TRIM(MERGE('ON ','OFF',LSWRTDIAG)), ')'
+       IF (LSWRTREF) WRITE(IU06,*) '  WAM_SWRT_REF = 1: PER-SPECTRUM REFERENCE KERNEL SNONLIN_SWRT_REF'
+       WRITE(IU06,*) ' '
+ 
 -- 
 2.43.0
 
