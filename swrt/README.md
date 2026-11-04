@@ -115,7 +115,7 @@ message when the variable is unset or the file is missing.
 
 ## 5. Test results
 
-### 5.1 Synthetic spectra
+### 5.1 Synthetic and ERA5 spectra
 
 The error ε of the direction-integrated S_nl (van Vledder 2006, Eq. 58) is computed against WRT on 300 synthetic spectra
 that were not used in the selection, half of them single-peaked and half bimodal. SWRT follows WRT closely, whereas the
@@ -125,6 +125,17 @@ error of DIA exceeds the magnitude of S_nl itself.
 |---|---|---|
 | SWRT with K = 31 | 8 | 18 |
 | DIA of ecWAM | 125 | 190 |
+
+ERA5 spectra on their own grid of 24 directions and 30 frequencies give a similar result. Over 1171 deep-water ERA5 spectra on a 5°
+grid at 00 UTC 1 January 2019, the median ε is 8 % for SWRT with the ERA5 file of section 3 (K = 29) and 72 % for DIA. In a bimodal
+example with ε of 8 % for SWRT and 58 % for DIA, SWRT reproduces the transfer of WRT in frequency and direction, whereas DIA
+overestimates the negative lobe above the wind-sea peak by half and spreads its positive lobe over a wider range of directions (Fig. 1).
+
+![Fig. 1](figs/fig_ec_era5_snl2d.png)
+
+**Fig. 1.** A bimodal ERA5 spectrum at 65° S, 175° W at 00 UTC 1 January 2019, with a swell and a wind sea. (a) E(f, θ);
+(b)–(d) S_nl(f, θ) from WRT, SWRT with K = 29 and DIA, divided by the largest |S_nl| of WRT, with the contour E = E_max / 10 in
+grey. Directions are relative to the mean direction θ̄.
 
 ### 5.2 Global test
 
@@ -140,16 +151,16 @@ summed over the hourly outputs from t = 1 h and over the sea points where H_s of
 | DIA | 15 | 9 | 1.35 |
 
 SWRT keeps the significant wave height within 1 % of WRT at every hour and nearly everywhere, while DIA gives 15 % higher
-values (Figs. 1 and 2).
+values (Figs. 2 and 3).
 
-![Fig. 1](figs/fig_ec_global_bulk.png)
+![Fig. 2](figs/fig_ec_global_bulk.png)
 
-**Fig. 1.** Global statistics of the 24-h ecWAM test with S_nl from WRT (thick gray line), DIA (dashed) and SWRT with K = 31
+**Fig. 2.** Global statistics of the 24-h ecWAM test with S_nl from WRT (thick gray line), DIA (dashed) and SWRT with K = 31
 (circles). (a) Mean H_s over the sea points; (b) ε_Hs and (c) ε_Tz at each hour.
 
-![Fig. 2](figs/fig_ec_global_maps.png)
+![Fig. 3](figs/fig_ec_global_maps.png)
 
-**Fig. 2.** ε_Hs at each sea point over the 24-h ecWAM test for (a) DIA and (b) SWRT with K = 31, with ε_Hs over all points
+**Fig. 3.** ε_Hs at each sea point over the 24-h ecWAM test for (a) DIA and (b) SWRT with K = 31, with ε_Hs over all points
 under each map. Seas without a value are white, mostly the ice-covered polar seas.
 
 ### 5.3 Cost
@@ -163,10 +174,10 @@ configurations and offsets alone.
 | SWRT with K = 31 | 4.0 | 1.6 | 1.4 |
 | WRT | 68 | 14 | 11 |
 
-S_nl takes about a fifth of a time step with DIA, half with SWRT and nearly all of it with WRT (Fig. 3).
+S_nl takes about a fifth of a time step with DIA, half with SWRT and nearly all of it with WRT (Fig. 4).
 
-![Fig. 3](figs/fig_ec_cost.png)
+![Fig. 4](figs/fig_ec_cost.png)
 
-**Fig. 3.** Cost of S_nl in the 24-h ecWAM test. (a) Cost of SWRT with K = 31 (white) and WRT (black) relative to DIA (dashed
+**Fig. 4.** Cost of S_nl in the 24-h ecWAM test. (a) Cost of SWRT with K = 31 (white) and WRT (black) relative to DIA (dashed
 line) for one S_nl call, one time step and the run; (b) time per time step, split into S_nl, the other source terms and
 propagation.
