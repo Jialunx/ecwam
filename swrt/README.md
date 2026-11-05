@@ -187,7 +187,7 @@ configurations and offsets alone.
 | Method | S_nl | Time step | Run |
 |---|---|---|---|
 | SWRT with K = 31 | 4.0 | 1.6 | 1.4 |
-| WRT | 68 | 14 | 11 |
+| WRT (vectorized) | 68 | 14 | 11 |
 
 S_nl takes about a fifth of a time step with DIA, half with SWRT and nearly all of it with WRT (Fig. 4).
 
