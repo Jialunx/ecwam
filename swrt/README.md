@@ -80,7 +80,7 @@ The run in the video edits the yml file of the regression test `etopo1_oper_an_f
 | Frequencies | `frequencies` | 29 propagated, of NFRE = 36 |
 | First frequency | `fr1`, `ifre1` | 0.0345 Hz, from fr1 = 4.177248E-02 Hz at ifre1 = 3 |
 | Time step | `timestep` | 900 s for propagation and source terms |
-| Physics | `iphys` | 1 |
+| Physics | `iphys` | 1, ST4 (Ardhuin et al. 2010) |
 | S_nl | `inlscheme`, `isnonlin`, `swrt_operator` | SWRT with `swrt_ec4x_K31L13.ww3op`, isnonlin = 0 |
 | Period | `analysis.begin`, `forecast.end` | 12 UTC 31 December 2022 to 12 UTC 2 January 2023, 48 h |
 | Forcing | `forcings` | ECMWF operational 10-m winds and sea ice, analyses every 6 h to 00 UTC 1 January 2023, then forecasts every hour |
