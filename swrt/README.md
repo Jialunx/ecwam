@@ -134,9 +134,9 @@ The model stops with a message when the variable is unset or the file is missing
 
 ### 5.1 Synthetic and ERA5 spectra
 
-The error ε of the direction-integrated S_nl (van Vledder 2006, Eq. 58) is computed against WRT on 300 synthetic spectra
-that were not used in the selection, half of them single-peaked and half bimodal. SWRT follows WRT closely, whereas the
-error of DIA exceeds the magnitude of S_nl itself.
+The error ε of the direction-integrated S_nl is computed against WRT on 300 synthetic spectra that were not used in the selection,
+half of them single-peaked and half bimodal. SWRT follows WRT closely, whereas the error of DIA exceeds the magnitude of S_nl
+itself.
 
 | Method | Median ε (%) | 95th percentile of ε (%) |
 |---|---|---|
