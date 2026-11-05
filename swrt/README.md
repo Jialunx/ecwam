@@ -66,23 +66,31 @@ curl -LO https://raw.githubusercontent.com/Jialunx/ecwam/swrt/swrt/files/wrt_tab
 | `wrt_table_K807.ww3op` | WRT | 807 | 74 | reference runs, all configurations with coefficient 1 |
 
 <!-- web -->
-The animation follows a session in time-lapse, from the clone of the branch to a run of the regression test
-`etopo1_oper_an_fc_O48` of ecWAM with the SWRT file of its spectral grid.
-
-![Install and run](figs/swrt_install_run.gif)
-
 The video explains each step in captions, from the clone of the branch to the first 6 h of a 48-h run of the global test of
 section 5.2 with `swrt_ec4x_K31L13.ww3op`.
 
-https://github.com/user-attachments/assets/303d0f25-d775-41fa-97d5-9adb29f0f3f0
+https://github.com/user-attachments/assets/4d1b0eef-1720-4f88-87b2-023dd6bf87d8
 
 <!-- /web -->
 <!-- pdf
-An animation on the [GitHub page of this guide](https://github.com/Jialunx/ecwam/tree/swrt/swrt#2-installation) follows a
-session in time-lapse, from the clone of the branch to a run of the regression test `etopo1_oper_an_fc_O48` of ecWAM with the
-SWRT file of its spectral grid. A [video](https://github.com/Jialunx/ecwam/releases/tag/swrt-video) explains each step in
-captions, up to the first 6 h of a 48-h run of the global test of section 5.2.
+A [video](https://github.com/Jialunx/ecwam/releases/tag/swrt-video) explains each step in captions, from the clone of the
+branch to the first 6 h of a 48-h run of the global test of section 5.2 with `swrt_ec4x_K31L13.ww3op`.
 -->
+
+The run in the video edits the yml file of the regression test `etopo1_oper_an_fc_O48` of ecWAM to the settings below.
+
+| Setting | yml | Value |
+|---|---|---|
+| Spatial grid | `grid` | O48, global, about 1.9° |
+| Directions | `directions` | 36 |
+| Frequencies | `frequencies` | 29 propagated, of NFRE = 36 |
+| First frequency | `fr1`, `ifre1` | 0.0345 Hz, from fr1 = 4.177248E-02 Hz at ifre1 = 3 |
+| Time step | `timestep` | 900 s for propagation and source terms |
+| Physics | `iphys` | 1 |
+| S_nl | `inlscheme`, `isnonlin`, `swrt_operator` | SWRT with `swrt_ec4x_K31L13.ww3op`, isnonlin = 0 |
+| Period | `analysis.begin`, `forecast.end` | 12 UTC 31 December 2022 to 12 UTC 2 January 2023, 48 h |
+| Forcing | `forcings` | ECMWF operational 10-m winds and sea ice, analyses every 6 h to 00 UTC 1 January 2023, then forecasts every hour |
+| Validation | `validation` | removed, as it checks the results of DIA |
 
 ## 3. Spectral grid
 
