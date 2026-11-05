@@ -70,10 +70,6 @@ section 5.2 with `swrt_ec4x_K31L13.ww3op`.
 https://github.com/user-attachments/assets/4d1b0eef-1720-4f88-87b2-023dd6bf87d8
 
 <!-- /web -->
-<!-- pdf
-A [video](https://github.com/Jialunx/ecwam/releases/tag/swrt-video) explains each step in captions, from the clone of the
-branch to the first 6 h of a 48-h run of the global test of section 5.2 with `swrt_ec4x_K31L13.ww3op`.
--->
 
 The run in the video edits the yml file of the regression test `etopo1_oper_an_fc_O48` of ecWAM to the settings below.
 
