@@ -128,8 +128,7 @@ physics:
     swrt_operator: /abs/path/swrt_ec4x_K31L13.ww3op
 ```
 
-The log file `wam.log` names the scheme, the SWRT file, and its numbers of configurations and offsets. The model stops with a
-message when the variable is unset or the file is missing.
+The model stops with a message when the variable is unset or the file is missing.
 
 ## 5. Test results
 
