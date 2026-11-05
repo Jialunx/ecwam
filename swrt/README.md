@@ -3,7 +3,7 @@
 SWRT (sparse Webb–Resio–Tracy) computes the nonlinear four-wave interactions S_nl from K configurations of the WRT
 quadrature table, each a quadruplet and its mirror image, with one optimized coefficient per configuration. This patch adds
 SWRT to ecWAM as an alternative to the Discrete Interaction Approximation (DIA) in `SNONLIN`. In a 24-h global test, SWRT
-keeps the significant wave height within 1 % of WRT, compared with 15 % for DIA, and takes 1.6 times the time per step of
+keeps H_s within 1 % of WRT, compared with 15 % for DIA, and takes 1.6 times the time per step of
 DIA.
 
 The SWRT files and this guide are on the branch `swrt` of
@@ -176,7 +176,7 @@ summed over the hourly outputs from t = 1 h and over the sea points where H_s of
 | SWRT with K = 31 | 0.7 | 0.8 | 1.19 |
 | DIA | 15 | 9 | 1.35 |
 
-SWRT keeps the significant wave height within 1 % of WRT at every hour and nearly everywhere, while DIA gives 15 % higher
+SWRT keeps H_s within 1 % of WRT at every hour and nearly everywhere, while DIA gives 15 % higher
 values (Figs. 2 and 3).
 
 ![Fig. 2](figs/fig_ec_global_bulk.png)
