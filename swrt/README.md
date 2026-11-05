@@ -176,8 +176,7 @@ values (Figs. 2 and 3).
 
 ![Fig. 3](figs/fig_ec_global_maps.png)
 
-**Fig. 3.** ε_Hs at each sea point over the 24-h ecWAM test for (a) DIA and (b) SWRT with K = 31, with ε_Hs over all points
-under each map. Seas without a value are white, mostly the ice-covered polar seas.
+**Fig. 3.** ε_Hs at each sea point over the 24-h ecWAM test for (a) DIA and (b) SWRT with K = 31, with ε_Hs over all points.
 
 ### 5.3 Cost
 
