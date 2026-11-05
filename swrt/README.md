@@ -88,11 +88,10 @@ The run in the video edits the yml file of the regression test `etopo1_oper_an_f
 
 ## 3. Spectral grid
 
-The SWRT files depend on the spectral grid only, not on the spatial grid or the time step. The spectral grid of ecWAM is set by
-the number of directions, the number NFRE of frequencies, and the reference frequency fr1 of bin ifre1, and its frequency ratio
-is fixed at 1.1. NFRE is the number of frequencies of the source terms, whereas `frequencies` in the yml file sets the number of
-propagated frequencies. The branch holds SWRT files for the common spectral grids below, each selected as the operational file
-is, for about four times the S_nl cost of DIA.
+The SWRT files depend on the spectral grid only. The spectral grid of ecWAM is set by the number of directions, the number NFRE of
+frequencies, and the reference frequency fr1 of bin ifre1, and its frequency ratio is fixed at 1.1. NFRE is the number of
+frequencies of the source terms, whereas `frequencies` in the yml file sets the number of propagated frequencies. The branch holds
+SWRT files for the common spectral grids below, each already optimized for about four times the S_nl cost of DIA.
 
 <!-- compact -->
 
@@ -106,10 +105,8 @@ is, for about four times the S_nl cost of DIA.
 | `swrt_d24_f0418_K27L16.ww3op` | 24 × 36 | 0.0418 | 1.1 |
 | `swrt_d36_f055_K29L14.ww3op` | 36 × 36 | 0.055 | 1.1 |
 
-The first frequencies 0.0345, 0.0418 and 0.055 Hz correspond to fr1 = 4.177248E-02 Hz at ifre1 = 3, the same fr1 at ifre1 = 1,
-and fr1 = 0.055 Hz at ifre1 = 1. A run names the file of its spectral grid in `swrt_operator` (section 4), and the model stops
-with a message when the file and the grid differ. The files with 30 and 40 frequencies also need NFRE = 30 or 40 in namelist
-NALINE, which the standalone scripts set to 36. The scripts in `tools/` of the SWRT code archive
+A run names the file of its spectral grid in `swrt_operator` (section 4), and the model stops with a message when the file and the
+grid differ. The scripts in `tools/` of the SWRT code archive
 ([doi:10.5281/zenodo.23654016](https://doi.org/10.5281/zenodo.23654016)) build a file for any other spectral grid in about an
 hour.
 
