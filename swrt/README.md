@@ -180,9 +180,10 @@ values (Figs. 2 and 3).
 
 ### 5.3 Cost
 
-The cost is measured with DR_HOOK in the optimized build of the 24-h runs, on one of four MPI tasks, and is given relative to
-DIA. WRT runs through the same vectorized routine as SWRT, and the difference in cost therefore comes from the numbers of
-configurations and offsets alone.
+The cost is given relative to DIA for one S_nl call, for one time step with the propagation and all source terms, and for the
+whole 24-h run. The S_nl call and the time step are timed with DR_HOOK in the optimized build on one of four MPI tasks, and the
+run is the elapsed time of the model, which also includes the hourly output and the reading of the forcing. WRT runs through the
+same vectorized routine as SWRT, and the difference in cost therefore comes from the numbers of configurations and offsets alone.
 
 | Method | S_nl | Time step | Run |
 |---|---|---|---|
