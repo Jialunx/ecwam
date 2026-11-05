@@ -6,7 +6,7 @@ SWRT to ecWAM as an alternative to the Discrete Interaction Approximation (DIA) 
 keeps the significant wave height within 1 % of WRT, compared with 15 % for DIA, and takes 1.6 times the time per step of
 DIA.
 
-The changes, the SWRT files and this guide are on the branch `swrt` of
+The SWRT files and this guide are on the branch `swrt` of
 [Jialunx/ecwam](https://github.com/Jialunx/ecwam/tree/swrt/swrt), a fork of [ecmwf-ifs/ecwam](https://github.com/ecmwf-ifs/ecwam)
 (ecWAM 1.5.14).
 
