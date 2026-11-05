@@ -119,7 +119,7 @@ hour.
 | `ISNONLIN` | namelist `NALINE` | shallow-water scaling 0, 1 or 2, as for DIA |
 | `WAM_SWRT_DIAG` | environment | `0` switches the diagonal term off (optional) |
 
-The standalone scripts read the same settings from three lines of the yml file.
+The scripts read the same settings from three lines of the yml file.
 
 ```yaml
 physics:
