@@ -70,11 +70,18 @@ The animation follows a session in time-lapse, from the clone of the branch to a
 `etopo1_oper_an_fc_O48` of ecWAM with the SWRT file of its spectral grid.
 
 ![Install and run](figs/swrt_install_run.gif)
+
+The video explains each step in captions, from the clone of the branch to the first 6 h of a 48-h run of the global test of
+section 5.2 with `swrt_ec4x_K31L13.ww3op`.
+
+https://github.com/user-attachments/assets/303d0f25-d775-41fa-97d5-9adb29f0f3f0
+
 <!-- /web -->
 <!-- pdf
 An animation on the [GitHub page of this guide](https://github.com/Jialunx/ecwam/tree/swrt/swrt#2-installation) follows a
 session in time-lapse, from the clone of the branch to a run of the regression test `etopo1_oper_an_fc_O48` of ecWAM with the
-SWRT file of its spectral grid.
+SWRT file of its spectral grid. A [video](https://github.com/Jialunx/ecwam/releases/tag/swrt-video) explains each step in
+captions, up to the first 6 h of a 48-h run of the global test of section 5.2.
 -->
 
 ## 3. Spectral grid
