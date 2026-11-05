@@ -1,4 +1,4 @@
-# SWRT for nonlinear four-wave interactions in ecWAM: installation and quick guide
+# SWRT for nonlinear four-wave interactions in ecWAM
 
 SWRT (sparse Webb–Resio–Tracy) computes the nonlinear four-wave interactions S_nl from K configurations of the WRT
 quadrature table, each a quadruplet and its mirror image, with one optimized coefficient per configuration. This patch adds
@@ -7,8 +7,8 @@ keeps the significant wave height within 1 % of WRT, compared with 15 % for DIA,
 DIA.
 
 The changes, the SWRT files and this guide are on the branch `swrt` of
-[Jialunx/ecwam](https://github.com/Jialunx/ecwam/tree/swrt), a fork of [ecmwf-ifs/ecwam](https://github.com/ecmwf-ifs/ecwam)
-at commit `e1779dc0` (ecWAM 1.5.14).
+[Jialunx/ecwam](https://github.com/Jialunx/ecwam/tree/swrt/swrt), a fork of [ecmwf-ifs/ecwam](https://github.com/ecmwf-ifs/ecwam)
+(ecWAM 1.5.14).
 
 ## 1. Changes to ecWAM
 
@@ -44,12 +44,12 @@ The branch can be cloned directly.
 git clone -b swrt https://github.com/Jialunx/ecwam
 ```
 
-An existing clone of ecWAM at commit `e1779dc0` takes the same changes from the patch.
+An existing clone of ecWAM 1.5.14 takes the same changes from the patch.
 
 ```bash
-git checkout e1779dc0aec1210ab6f5339a2582fbb7b6b18e6b
-curl -LO https://raw.githubusercontent.com/Jialunx/ecwam/swrt/swrt/ecwam_swrt_e1779dc0.patch
-git apply ecwam_swrt_e1779dc0.patch
+git checkout 1.5.14
+curl -LO https://raw.githubusercontent.com/Jialunx/ecwam/swrt/swrt/ecwam_swrt.patch
+git apply ecwam_swrt.patch
 ```
 
 ecWAM then builds as before and needs no new library. The SWRT files are in the folder `swrt/files` of the branch and go
@@ -60,10 +60,10 @@ curl -LO https://raw.githubusercontent.com/Jialunx/ecwam/swrt/swrt/files/swrt_ec
 curl -LO https://raw.githubusercontent.com/Jialunx/ecwam/swrt/swrt/files/wrt_table_K807.ww3op
 ```
 
-| SWRT file | Method | Configurations | Offsets | Use |
-|---|---|---|---|---|
-| `swrt_ec4x_K31L13.ww3op` | SWRT | 31 | 13 | runs with SWRT, selected for four times the S_nl cost of DIA |
-| `wrt_table_K807.ww3op` | WRT | 807 | 74 | reference runs, all configurations with coefficient 1 |
+| SWRT file | Configurations | Offsets | Use |
+|---|---|---|---|
+| `swrt_ec4x_K31L13.ww3op` | 31 | 13 | runs with SWRT, selected for four times the S_nl cost of DIA |
+| `wrt_table_K807.ww3op` | 807 | 74 | reference runs with WRT, all configurations with coefficient 1 |
 
 <!-- web -->
 The video explains each step in captions, from the clone of the branch to the first 6 h of a 48-h run of the global test of
