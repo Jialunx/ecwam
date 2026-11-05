@@ -189,8 +189,6 @@ configurations and offsets alone.
 | SWRT with K = 31 | 4.0 | 1.6 | 1.4 |
 | WRT (vectorized) | 68 | 14 | 11 |
 
-S_nl takes about a fifth of a time step with DIA, half with SWRT and nearly all of it with WRT (Fig. 4).
-
 ![Fig. 4](figs/fig_ec_cost.png)
 
 **Fig. 4.** Cost of S_nl in the 24-h ecWAM test. (a) Cost of SWRT with K = 31 (white) and WRT (black) relative to DIA (dashed
