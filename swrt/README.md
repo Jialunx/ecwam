@@ -26,19 +26,17 @@ The patch adds one source file and changes eight others. The default `INLSCHEME 
 | `src/ecwam/CMakeLists.txt` | Adds the new file to the build. |
 | `share/ecwam/scripts/ecwam_run_model.sh` | Passes `isnonlin`, `inlscheme` and `swrt_operator` of the yml settings to the namelist and the environment. |
 
-`SNONLIN_SWRT` computes in single precision, with the grid points of an NPROMA block as the innermost loop, and flushes
-subnormal numbers to zero inside this routine only. The SWRT files hold the deep-water interactions, which `ISNONLIN` scales
-in shallow water as it scales DIA.
-
-As in `SNONLIN`, the diagonal term is the derivative of S_nl at a spectral bin with respect to the spectral density at that
-bin. Each quadruplet of SWRT moves action from k_3 to k_1, its two wavenumbers on the spectral grid, at a rate proportional to
-T = n_1 n_3 (n_4 − n_2) + n_2 n_4 (n_3 − n_1), where n_i is the action density at k_i and n_2 and n_4 are interpolated. The
-diagonal term of the quadruplet is proportional to ∂T/∂n_1 = n_3 (n_4 − n_2) − n_2 n_4 at k_1 and to
-−∂T/∂n_3 = −n_1 (n_4 − n_2) − n_2 n_4 at k_3, as in the WRT code Xnl (van Vledder 2006).
+The SWRT files hold the deep-water interactions, which `ISNONLIN` scales in shallow water as it scales DIA.
+The diagonal term is the derivative of S_nl at a spectral bin with respect to the spectral density at that bin, taken
+analytically as in `SNONLIN`. Each quadruplet of SWRT moves action from k_3 to k_1, both on the spectral grid, at a rate
+proportional to T = n_1 n_3 (n_4 − n_2) + n_2 n_4 (n_3 − n_1), where n_i is the action density at k_i and n_2 and n_4 are
+interpolated. Its diagonal term is proportional to ∂T/⁠∂n_1 at k_1 and to −∂T/⁠∂n_3 at k_3, as in the WRT code Xnl
+(van Vledder 2006). SWRT adds diagonal terms only at k_1 and k_3, whereas DIA adds them also at the bins around its
+interpolated wavenumbers.
 
 ## 2. Installation
 
-The branch can be cloned directly.
+The branch can be cloned directly (video guide in the release [swrt-video](https://github.com/Jialunx/ecwam/releases/tag/swrt-video)).
 
 ```bash
 git clone -b swrt https://github.com/Jialunx/ecwam
