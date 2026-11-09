@@ -1,10 +1,9 @@
 # SWRT for nonlinear four-wave interactions in ecWAM
 
 SWRT (sparse Webb–Resio–Tracy) computes the nonlinear four-wave interactions S_nl from K configurations of the WRT
-quadrature table, each a quadruplet and its mirror image, with one optimized coefficient per configuration. This patch adds
-SWRT to ecWAM as an alternative to the Discrete Interaction Approximation (DIA) in `SNONLIN`. In a 24-h global test, SWRT
-keeps H_s within 1 % of WRT, compared with 15 % for DIA, and takes 1.6 times the time per step of
-DIA.
+quadrature table, each a quadruplet and its mirror image, with one optimized coefficient per configuration. SWRT is implemented
+in ecWAM's `SNONLIN` as an option next to the Discrete Interaction Approximation (DIA). Two files of configurations are
+provided for each grid: SWRT with 31 configurations, and SWRT Lite with 7, which is faster.
 
 The SWRT files and this guide are on the branch `swrt` of
 [Jialunx/ecwam](https://github.com/Jialunx/ecwam/tree/swrt/swrt), a fork of [ecmwf-ifs/ecwam](https://github.com/ecmwf-ifs/ecwam)
@@ -25,14 +24,6 @@ The patch adds one source file and changes eight others. The default `INLSCHEME 
 | `src/ecwam/wdfluxes.F90` | Calls `SNONLIN_SWRT` instead of `SNONLIN` for the wave-dependent fluxes at the initial time when `INLSCHEME = 1`. |
 | `src/ecwam/CMakeLists.txt` | Adds the new file to the build. |
 | `share/ecwam/scripts/ecwam_run_model.sh` | Passes `isnonlin`, `inlscheme` and `swrt_operator` of the yml settings to the namelist and the environment. |
-
-The SWRT files hold the deep-water interactions, which `ISNONLIN` scales in shallow water as it scales DIA.
-The diagonal term is the derivative of S_nl at a spectral bin with respect to the spectral density at that bin, taken
-analytically as in `SNONLIN`. Each quadruplet of SWRT moves action from k_3 to k_1, both on the spectral grid, at a rate
-proportional to T = n_1 n_3 (n_4 − n_2) + n_2 n_4 (n_3 − n_1), where n_i is the action density at k_i and n_2 and n_4 are
-interpolated. Its diagonal term is proportional to ∂T/⁠∂n_1 at k_1 and to −∂T/⁠∂n_3 at k_3, as in the WRT code Xnl
-(van Vledder 2006). SWRT adds diagonal terms only at k_1 and k_3, whereas DIA adds them also at the bins around its
-interpolated wavenumbers.
 
 ## 2. Installation
 
@@ -55,60 +46,43 @@ to any directory the model can read. The files for the other spectral grids of s
 
 ```bash
 curl -LO https://raw.githubusercontent.com/Jialunx/ecwam/swrt/swrt/files/swrt_ec4x_K31L13.ww3op
+curl -LO https://raw.githubusercontent.com/Jialunx/ecwam/swrt/swrt/files/swrt_ec_K7L7.ww3op
 curl -LO https://raw.githubusercontent.com/Jialunx/ecwam/swrt/swrt/files/wrt_table_K807.ww3op
 ```
 
 | SWRT file | Configurations | Offsets | Use |
 |---|---|---|---|
-| `swrt_ec4x_K31L13.ww3op` | 31 | 13 | runs with SWRT, selected for four times the S_nl cost of DIA |
-| `wrt_table_K807.ww3op` | 807 | 74 | reference runs with WRT, all configurations with coefficient 1 |
+| `swrt_ec4x_K31L13.ww3op` | 31 | 13 | runs with SWRT, 3.7 times the S_nl cost of DIA |
+| `swrt_ec_K7L7.ww3op` | 7 | 7 | faster runs with SWRT Lite, 1.4 times the S_nl cost of DIA |
 
 <!-- web -->
-The video explains each step in captions, from the clone of the branch to the first 6 h of a 48-h run of the global test of
-section 5.2 with `swrt_ec4x_K31L13.ww3op`.
+The video explains each step in captions, from the clone of the branch to the first 6 h of a 48-h run of the ecWAM test case
+`etopo1_oper_an_fc_O48` on the spectral grid of section 5.1 with `swrt_ec4x_K31L13.ww3op`.
 
 https://github.com/user-attachments/assets/4d1b0eef-1720-4f88-87b2-023dd6bf87d8
 
 <!-- /web -->
 
-The run in the video edits the yml file of the regression test `etopo1_oper_an_fc_O48` of ecWAM to the settings below.
-
-| Setting | yml | Value |
-|---|---|---|
-| Spatial grid | `grid` | O48, global, about 1.9° |
-| Directions | `directions` | 36 |
-| Frequencies | `frequencies` | 29 propagated, of NFRE = 36 |
-| First frequency | `fr1`, `ifre1` | 0.0345 Hz, from fr1 = 4.177248E-02 Hz at ifre1 = 3 |
-| Time step | `timestep` | 900 s for propagation and source terms |
-| Physics | `iphys` | 1, ST4 (Ardhuin et al. 2010) |
-| S_nl | `inlscheme`, `isnonlin`, `swrt_operator` | SWRT with `swrt_ec4x_K31L13.ww3op`, isnonlin = 0 |
-| Period | `analysis.begin`, `forecast.end` | 12 UTC 31 December 2022 to 12 UTC 2 January 2023, 48 h |
-| Forcing | `forcings` | ECMWF operational 10-m winds and sea ice, analyses every 6 h to 00 UTC 1 January 2023, then forecasts every hour |
-| Validation | `validation` | removed, as it checks the results of DIA |
-
 ## 3. Spectral grid
 
-The SWRT files depend on the spectral grid only. The spectral grid of ecWAM is set by the number of directions, the number NFRE of
-frequencies, and the reference frequency fr1 of bin ifre1, and its frequency ratio is fixed at 1.1. NFRE is the number of
-frequencies of the source terms, whereas `frequencies` in the yml file sets the number of propagated frequencies. The branch holds
-SWRT files for the common spectral grids below, each already optimized for about four times the S_nl cost of DIA.
+Each SWRT file fits one spectral grid: the number of directions, the number NFRE of source-term frequencies and the frequency
+fr1 of bin ifre1 (the frequency ratio is always 1.1). 7 common grid settings for SWRT have been optimized and are ready to use.
 
 <!-- compact -->
 
-| SWRT file | Directions × NFRE | First frequency (Hz) | Ratio |
+| Directions × NFRE | First frequency (Hz) | SWRT file (K = 31) | SWRT Lite file (K = 7) |
 |---|---|---|---|
-| `swrt_ec4x_K31L13.ww3op` | 36 × 36 | 0.0345 | 1.1 |
-| `swrt_d24_f0345_K27L16.ww3op` | 24 × 36 | 0.0345 | 1.1 |
-| `swrt_d24_n30_f0345_K29L14.ww3op` | 24 × 30 | 0.0345 | 1.1 |
-| `swrt_d24_n40_f0345_K27L16.ww3op` | 24 × 40 | 0.0345 | 1.1 |
-| `swrt_d12_f0418_K29L14.ww3op` | 12 × 36 | 0.0418 | 1.1 |
-| `swrt_d24_f0418_K27L16.ww3op` | 24 × 36 | 0.0418 | 1.1 |
-| `swrt_d36_f055_K29L14.ww3op` | 36 × 36 | 0.055 | 1.1 |
+| 36 × 36 | 0.0345 | `swrt_ec4x_K31L13.ww3op` | `swrt_ec_K7L7.ww3op` |
+| 24 × 36 | 0.0345 | `swrt_d24_f0345_K31L13.ww3op` | `swrt_d24_f0345_K7L7.ww3op` |
+| 24 × 30 | 0.0345 | `swrt_d24_n30_f0345_K31L13.ww3op` | `swrt_d24_n30_f0345_K7L7.ww3op` |
+| 24 × 40 | 0.0345 | `swrt_d24_n40_f0345_K31L13.ww3op` | `swrt_d24_n40_f0345_K7L7.ww3op` |
+| 12 × 36 | 0.0418 | `swrt_d12_f0418_K31L13.ww3op` | `swrt_d12_f0418_K7L7.ww3op` |
+| 24 × 36 | 0.0418 | `swrt_d24_f0418_K31L13.ww3op` | `swrt_d24_f0418_K7L7.ww3op` |
+| 36 × 36 | 0.055 | `swrt_d36_f055_K31L13.ww3op` | `swrt_d36_f055_K7L7.ww3op` |
 
-A run names the file of its spectral grid in `swrt_operator` (section 4), and the model stops with a message when the file and the
-grid differ. The scripts in `tools/` of the SWRT code archive
-([doi:10.5281/zenodo.23654016](https://doi.org/10.5281/zenodo.23654016)) build a file for any other spectral grid in about an
-hour.
+A run names the file of its spectral grid in `swrt_operator` (section 4).
+For any other spectral grid, `swrt/tools/make_swrt_files.sh` builds both files, in 16 minutes for 24 × 36. Each file is the
+most accurate set on synthetic training spectra that stays stable when S_nl alone is integrated in time.
 
 ## 4. Running
 
@@ -128,70 +102,84 @@ physics:
     swrt_operator: /abs/path/swrt_ec4x_K31L13.ww3op
 ```
 
-The model stops with a message when the variable is unset or the file is missing.
-
 ## 5. Test results
 
-### 5.1 Synthetic and ERA5 spectra
+### 5.1 Global test
 
-The error ε of the direction-integrated S_nl is computed against WRT on 300 synthetic spectra that were not used in the selection,
-half of them single-peaked and half bimodal. SWRT follows WRT closely, whereas the error of DIA exceeds the magnitude of S_nl
-itself.
+The global test runs the ecWAM test case `etopo1_era5_O48` for ten days with the settings below, once with each S_nl. It is a
+cold start: the initial spectra are JONSWAP spectra computed from the local wind.
 
-| Method | Median ε (%) | 95th percentile of ε (%) |
+| Setting | yml | Value |
 |---|---|---|
-| SWRT with K = 31 | 8 | 18 |
-| DIA of ecWAM | 125 | 190 |
+| Spatial grid | `grid` | O48, global, about 1.9° |
+| Directions | `directions` | 36 |
+| Frequencies | `frequencies` | 29 propagated, of NFRE = 36 |
+| First frequency | `fr1`, `ifre1` | 0.0345 Hz, from fr1 = 4.177248E-02 Hz at ifre1 = 3 |
+| Time step | `timestep` | 900 s for propagation and source terms |
+| Physics | `iphys` | 1, ST4 (Ardhuin et al. 2010) |
+| S_nl | `inlscheme`, `isnonlin`, `swrt_operator` | inlscheme = 1 with the file of WRT, SWRT or SWRT Lite, or 0 for DIA; isnonlin = 0 |
+| Period | `begin`, `end` | 00 UTC 1 January 2025 to 00 UTC 11 January 2025, 10 days |
+| Forcing | `forcings` | ERA5 10-m winds and sea ice every hour |
 
-ERA5 spectra exist only on the grid of ERA5, 24 directions and 30 frequencies, and are tested with the ERA5 file of section 3.
-Over 1171 deep-water ERA5 spectra on a 5° grid at 00 UTC 1 January 2019, the median ε is 8 % for SWRT and 72 % for DIA. In an example of a
-wind sea with a swell, with ε of 8 % for SWRT and 55 % for DIA, SWRT reproduces the transfer of WRT in frequency and direction,
-whereas DIA overestimates its largest value by a factor of 1.6 and adds transfer at directions where WRT has none (Fig. 1).
-
-![Fig. 1](figs/fig_ec_era5_snl_example.png)
-
-**Fig. 1.** An ERA5 spectrum of a wind sea with a swell at 35° S, 155° E, 00 UTC 1 January 2019. (a) E(f, θ) / E_max;
-(b)–(d) S_nl(f, θ) from WRT, SWRT and DIA, divided by the largest |S_nl| of WRT. Directions are relative to the mean direction θ̄.
-
-### 5.2 Global test
-
-The global test extends the regression case `etopo1_oper_an_fc_O48` of ecWAM to 24 h on the operational spectral grid of 36 × 36, of which 29 frequencies are propagated, from
-12 UTC 31 December 2022 to 12 UTC 1 January 2023. It starts from rest with the ECMWF operational 10-m winds and sea ice, the
-physics of iphys = 1 and time steps of 900 s. The errors ε_Hs and ε_Tz are the relative differences from the run with WRT,
-summed over the hourly outputs from t = 1 h and over the sea points where H_s of WRT is at least 0.1 m.
-
-| Method | ε_Hs (%) | ε_Tz (%) | Mean H_s at 24 h (m) |
+| Method | ε_Hs (%) | ε_Tz (%) | Mean H_s at 10 days (m) |
 |---|---|---|---|
-| WRT | – | – | 1.20 |
-| SWRT with K = 31 | 0.7 | 0.8 | 1.19 |
-| DIA | 15 | 9 | 1.35 |
+| WRT | – | – | 2.06 |
+| SWRT | 1.4 | 1.3 | 2.03 |
+| SWRT Lite | 1.8 | 1.4 | 2.10 |
+| DIA | 8.1 | 6.0 | 2.19 |
 
-SWRT keeps H_s within 1 % of WRT at every hour and nearly everywhere, while DIA gives 15 % higher
-values (Figs. 2 and 3).
+ε_Hs and ε_Tz are ε_X = Σ |X − X_WRT| / Σ X_WRT for X = H_s and T_z, with the sums over the hourly outputs from t = 1 h and over
+the sea points where H_s of WRT is at least 0.1 m.
 
-![Fig. 2](figs/fig_ec_global_bulk.png)
+![Fig. 1](figs/fig_ec_global_bulk.png)
 
-**Fig. 2.** Global statistics of the 24-h ecWAM test with S_nl from WRT (thick gray line), DIA (dashed) and SWRT with K = 31
-(circles). (a) Mean H_s over the sea points; (b) ε_Hs and (c) ε_Tz at each hour.
+**Fig. 1.** Global statistics of the 10-day test on the grid of 36 × 36, with S_nl from WRT (thick gray line),
+DIA (dashed), SWRT (circles) and SWRT Lite (dotted). (a) Mean H_s over the sea points; (b) ε_Hs and (c) ε_Tz at each hour.
 
-![Fig. 3](figs/fig_ec_global_maps.png)
+![Fig. 2](figs/fig_ec_global_maps.png)
 
-**Fig. 3.** ε_Hs at each sea point over the 24-h ecWAM test for (a) DIA and (b) SWRT with K = 31, with ε_Hs over all points.
+**Fig. 2.** ε_Hs at each sea point over the ten days for (a) DIA, (b) SWRT and (c) SWRT Lite, with ε_Hs over all points.
 
-### 5.3 Cost
+### 5.2 Cost
 
-The cost is given relative to DIA for one S_nl call, for one time step with the propagation and all source terms, and for the
-whole 24-h run. The S_nl call and the time step are timed with DR_HOOK in the optimized build on one of four MPI tasks, and the
-run is the elapsed time of the model, which also includes the hourly output and the reading of the forcing. WRT runs through the
-same vectorized routine as SWRT, and the difference in cost therefore comes from the numbers of configurations and offsets alone.
+Cost relative to DIA.
 
-| Method | S_nl | Time step | Run |
+| Method | S_nl only | Single time step | 10-day run |
 |---|---|---|---|
-| SWRT with K = 31 | 4.0 | 1.6 | 1.4 |
-| WRT (vectorized) | 68 | 14 | 11 |
+| DIA | 1 | 1 | 1 |
+| SWRT | 3.7 | 1.7 | 1.6 |
+| SWRT Lite | 1.4 | 1.14 | 1.12 |
+| WRT (vectorized) | 66 | 16 | 14 |
 
-![Fig. 4](figs/fig_ec_cost.png)
+![Fig. 3](figs/fig_ec_cost.png)
 
-**Fig. 4.** Cost of S_nl in the 24-h ecWAM test. (a) Cost of SWRT with K = 31 (white) and WRT (black) relative to DIA (dashed
-line) for one S_nl call, one time step and the run; (b) time per time step, split into S_nl, the other source terms and
+**Fig. 3.** Cost of S_nl in the global test. (a) Cost of SWRT (white), SWRT Lite (gray) and WRT (black) relative to DIA
+(dashed line) for S_nl only, a single time step and the 10-day run; (b) time per time step, split into S_nl, the other source terms and
 propagation.
+
+### 5.3 Other spectral grids
+
+Each file of section 3 run in the global test on its own spectral grid, against WRT on the same grid. Each cell gives
+SWRT / SWRT Lite / DIA, in %.
+
+| Directions × NFRE | First frequency (Hz) | ε_Hs | ε_Tz |
+|---|---|---|---|
+| 36 × 36 | 0.0345 | 1.4 / 1.8 / 8.1 | 1.3 / 1.4 / 6.0 |
+| 24 × 36 | 0.0345 | 0.5 / 2.2 / 10 | 0.6 / 2.0 / 7.0 |
+| 24 × 30 | 0.0345 | 0.9 / 4.0 / 15 | 0.9 / 3.6 / 10 |
+| 24 × 40 | 0.0345 | 0.5 / 3.4 / 9.5 | 0.6 / 2.1 / 7.0 |
+| 12 × 36 | 0.0418 | 0.6 / 2.6 / 18 | 0.4 / 1.8 / 10 |
+| 24 × 36 | 0.0418 | 1.7 / 2.1 / 9.7 | 1.6 / 2.0 / 6.9 |
+| 36 × 36 | 0.055 | 0.7 / 1.1 / 7.2 | 0.7 / 0.9 / 5.7 |
+
+### 5.4 Example spectra over ten days
+
+![Fig. 4](figs/fig_ec_jan10d_spectra.png)
+
+**Fig. 4.** Wave spectra of two wind seas, two swells and two crossing seas in the 10-day test. Left: E(f, θ) divided by the
+maximum of WRT; right: E(f) and the directional distribution ∫E df.
+
+![Fig. 5](figs/fig_ec_jan10d_snl.png)
+
+**Fig. 5.** S_nl of the spectra of Fig. 4. Left: S_nl(f, θ) divided by the largest |S_nl| of WRT; right: S_nl(f) and
+∫S_nl df.
