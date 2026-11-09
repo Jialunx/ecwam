@@ -33,6 +33,8 @@
 !          export_operator.py OF THE SWRT PACKAGE) AND CHECKS IT AGAINST
 !          THE MODEL GRID: NANG = na, NFRE = nk, FR = sigma/(2 pi) TO A
 !          RELATIVE 1.E-5. WAM_SWRT_DIAG=0 SWITCHES THE DIAGONAL OFF.
+!          FORMAT VERSION 2 ADDS THE BLOCKS full(nr), area(nk) AND
+!          ntoe(nk): ROWS WITH full = 1 ALSO DEPOSIT AT K2 AND K4.
 
 !       *CALL* *SNONLIN_SWRT (KIJS, KIJL, FL1, FLD, SL, WAVNUM, DEPTH, AKMEAN)*
 !          SAME ARGUMENTS AS SNONLIN.
@@ -99,6 +101,12 @@
 !     FREQUENCY CORNERS OF K2 AND K4 PER (ANCHOR, ROW), AS CORNER OF W3SNL6
       INTEGER(KIND=JWIM), ALLOCATABLE :: KA2(:,:), KB2(:,:), KA4(:,:), KB4(:,:)
       REAL(KIND=JWRS), ALLOCATABLE :: U2(:,:), U4(:,:)
+!     K2/K4 DEPOSITS (FORMAT VERSION 2): ROWS FLAGGED IN BLOCK FULL ALSO
+!     CHANGE K2 AND K4, AS A WHOLE QUADRUPLET (DIA); FACTORS
+!     A(K1) A(K3) B(M)/A(M) AT THE FREQUENCY CORNERS M OF K2 AND K4
+      LOGICAL :: LSWRTFULL = .FALSE.
+      LOGICAL, ALLOCATABLE :: LFR(:)
+      REAL(KIND=JWRS), ALLOCATABLE :: Q2A(:,:), Q2B(:,:), Q4A(:,:), Q4B(:,:)
 
       CONTAINS
 
@@ -118,9 +126,9 @@
       CHARACTER(LEN=1024) :: CLFILE
       CHARACTER(LEN=256)  :: CLLINE, CLSRC, CLMSG
       CHARACTER(LEN=16)   :: CLDIAG
-      INTEGER(KIND=JWIM) :: IU, IERR, ILEN, IVER, INK, INA, IKU, M, R, MW
-      INTEGER(KIND=JWIM), ALLOCATABLE :: I2(:), I4(:)
-      REAL(KIND=JWRS), ALLOCATABLE :: F2(:), F4(:)
+      INTEGER(KIND=JWIM) :: IU, IERR, ILEN, IVER, INK, INA, IKU, M, R, MW, M3
+      INTEGER(KIND=JWIM), ALLOCATABLE :: I2(:), I4(:), IFULL(:)
+      REAL(KIND=JWRS), ALLOCATABLE :: F2(:), F4(:), AREA(:), BTOE(:)
       REAL(KIND=JWRB) :: RDIF, RMAX
       REAL(KIND=JWRB), ALLOCATABLE :: SIGOP(:)
       REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
@@ -145,7 +153,7 @@
       READ(IU,'(A)',IOSTAT=IERR) CLLINE
       IF (IERR /= 0 .OR. TRIM(ADJUSTL(CLLINE)) /= 'WW3-SWRT-OPERATOR') CALL SWRTERR('first line is not WW3-SWRT-OPERATOR')
       READ(IU,*,IOSTAT=IERR) IVER
-      IF (IERR /= 0 .OR. IVER /= 1) CALL SWRTERR('unknown format version (this code reads 1)')
+      IF (IERR /= 0 .OR. (IVER /= 1 .AND. IVER /= 2)) CALL SWRTERR('unknown format version (this code reads 1 and 2)')
       READ(IU,*,IOSTAT=IERR) INK, INA, NR, IKU
       IF (IERR /= 0 .OR. MIN(INK,INA,NR) < 1) CALL SWRTERR('cannot read the line nk na nr K')
       READ(IU,'(A)',IOSTAT=IERR) CLSRC
@@ -216,7 +224,22 @@
       CALL RDLAB('kpow')
       READ(IU,*,IOSTAT=IERR) KPOW
       IF (IERR /= 0) CALL SWRTERR('cannot read block kpow')
+!     VERSION 2: FULL(NR) = 1 FOR ROWS WITH K2/K4 DEPOSITS, AREA(NK) = K DK DTHETA
+!     AND NTOE(NK) = 2 PI SIGMA K / CG (N -> E) OF THE TABLE
+      ALLOCATE(LFR(NR), IFULL(NR), AREA(NFRE), BTOE(NFRE))
+      IFULL(:) = 0
+      IF (IVER == 2) THEN
+        CALL RDLAB('full')
+        READ(IU,*,IOSTAT=IERR) IFULL
+        CALL RDLAB('area')
+        READ(IU,*,IOSTAT=IERR) AREA
+        CALL RDLAB('ntoe')
+        READ(IU,*,IOSTAT=IERR) BTOE
+        IF (IERR /= 0) CALL SWRTERR('cannot read block ntoe')
+      ENDIF
       CLOSE(IU)
+      LFR(:) = IFULL(:) /= 0
+      LSWRTFULL = ANY(LFR)
 
       IF (MINVAL(DI) < 0) CALL SWRTERR('negative offset di')
       IF (MINVAL(J2) < -NANG .OR. MAXVAL(J2) > NANG-1 .OR. MINVAL(J4) < -NANG .OR. MAXVAL(J4) > NANG-1 .OR. &
@@ -231,6 +254,27 @@
           CALL CORNER(M+I4(R), F4(R), KA4(M,R), KB4(M,R), U4(M,R))
         ENDDO
       ENDDO
+
+!     K2/K4 DEPOSIT FACTORS: THE ACTION CHANGE OF THE ANCHOR, T A(K1) A(K3),
+!     IN E UNITS (B(M)/A(M)) AT THE FREQUENCY CORNERS M OF K2 (ADDED) AND K4
+!     (TAKEN); ZERO WHERE K3 IS OFF THE GRID, AS W
+      ALLOCATE(Q2A(NFRE,NR), Q2B(NFRE,NR), Q4A(NFRE,NR), Q4B(NFRE,NR))
+      Q2A(:,:) = 0.0_JWRS
+      Q2B(:,:) = 0.0_JWRS
+      Q4A(:,:) = 0.0_JWRS
+      Q4B(:,:) = 0.0_JWRS
+      IF (LSWRTFULL) THEN
+        DO R=1,NR
+          DO M=1,NFRE
+            M3 = M+DI(R)
+            IF (M3 > NFRE) CYCLE
+            Q2A(M,R) = AREA(M)*AREA(M3)*BTOE(KA2(M,R))/AREA(KA2(M,R))
+            Q2B(M,R) = AREA(M)*AREA(M3)*BTOE(KB2(M,R))/AREA(KB2(M,R))
+            Q4A(M,R) = AREA(M)*AREA(M3)*BTOE(KA4(M,R))/AREA(KA4(M,R))
+            Q4B(M,R) = AREA(M)*AREA(M3)*BTOE(KB4(M,R))/AREA(KB4(M,R))
+          ENDDO
+        ENDDO
+      ENDIF
 
 !     ROWS GROUPED BY RESONANCE CURVE (SAME DI, DJ); THE FILE LISTS THEM TOGETHER
       ALLOCATE(GS(NR+1))
@@ -257,10 +301,13 @@
       WRITE(IU06,*) ' SNONLIN_SWRT: SWRT OPERATOR ', TRIM(CLFILE)
       WRITE(IU06,'(3A,I0,A,I0,A,I0,A,I0,A,I0,3A)') '   (', TRIM(CLSRC), ', K = ', IKU, ' CONFIGURATIONS, ', NR, ' ROWS, ', &
      &   NG, ' OFFSETS, NFRE = ', NFRE, ', NANG = ', NANG, ', DIAGONAL TERM ', TRIM(MERGE('ON ','OFF',LSWRTDIAG)), ')'
+      IF (LSWRTFULL) WRITE(IU06,'(A,I0,A,I0,A)') '   K2/K4 DEPOSITS ON ', COUNT(LFR), ' OF THE ', NR, &
+     &   ' ROWS (FORMAT VERSION 2; NO DIAGONAL TERM AT K2 AND K4)'
       IF (LSWRTREF) WRITE(IU06,*) '  WAM_SWRT_REF = 1: PER-SPECTRUM REFERENCE KERNEL SNONLIN_SWRT_REF'
+      IF (LSWRTREF .AND. LSWRTFULL) CALL SWRTERR('WAM_SWRT_REF = 1: the reference kernel has no k2/k4 deposits')
       WRITE(IU06,*) ' '
 
-      DEALLOCATE(SIGOP, I2, F2, I4, F4)
+      DEALLOCATE(SIGOP, I2, F2, I4, F4, IFULL, AREA, BTOE)
       LSWRTREAD = .TRUE.
 
       IF (LHOOK) CALL DR_HOOK('INISNONLIN_SWRT',1,ZHOOK_HANDLE)
@@ -337,6 +384,7 @@
       REAL(KIND=JWRS), DIMENSION(KIJL,NFRE) :: RMX
       REAL(KIND=JWRS), DIMENSION(KIJL) :: NMAX, QM, E1, WA, WP
       REAL(KIND=JWRS) :: XN, X1, X3, X2, X4, A2, B2, A4, B4, WR, FA_, FP_, U2_, U4_, V2_, V4_, TS, MMX
+      REAL(KIND=JWRS) :: QA2_, QB2_, QA4_, QB4_, TR
 
       REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
 
@@ -477,6 +525,57 @@
               ENDDO
             ENDDO
           ENDDO
+
+!         K2/K4 DEPOSITS OF THE ROWS FLAGGED IN BLOCK FULL (FORMAT VERSION 2):
+!         THE ROW'S OWN TRANSFER, AS DEPOSITED AT K1, ADDED AT THE FOUR CORNER
+!         CELLS OF K2 AND TAKEN FROM THOSE OF K4 WITH THE WEIGHTS OF THEIR
+!         INTERPOLATION. NO DIAGONAL TERM THERE. NO WORK WITH VERSION 1 FILES.
+          IF (LSWRTFULL) THEN
+            DO RR=GS(G),GS(G+1)-1
+              WR = W(K1,RR)
+              IF (WR == 0.0_JWRS .OR. .NOT. LFR(RR)) CYCLE
+              B2 = G2(RR)
+              A2 = 1.0_JWRS - B2
+              B4 = G4(RR)
+              A4 = 1.0_JWRS - B4
+              KA2_ = KA2(K1,RR)
+              KB2_ = KB2(K1,RR)
+              U2_  = U2(K1,RR)
+              V2_  = 1.0_JWRS-U2_
+              KA4_ = KA4(K1,RR)
+              KB4_ = KB4(K1,RR)
+              U4_  = U4(K1,RR)
+              V4_  = 1.0_JWRS-U4_
+              QA2_ = Q2A(K1,RR)
+              QB2_ = Q2B(K1,RR)
+              QA4_ = Q4A(K1,RR)
+              QB4_ = Q4B(K1,RR)
+              DO IA=1,NJA
+                JJ  = JACT(IA)
+                JD3 = JJ+O3
+                J2A = JJ+J2(RR)
+                J4A = JJ+J4(RR)
+!$OMP SIMD PRIVATE(X1,X2,X3,X4,TR)
+                DO IJ=KIJS,KIJL
+                  X1 = NX(IJ,JJ,K1)
+                  X3 = NX(IJ,JD3,K3)
+                  X2 = V2_ * ( A2*NX(IJ,J2A,KA2_) + B2*NX(IJ,J2A+1,KA2_) )   &
+     &               + U2_ * ( A2*NX(IJ,J2A,KB2_) + B2*NX(IJ,J2A+1,KB2_) )
+                  X4 = V4_ * ( A4*NX(IJ,J4A,KA4_) + B4*NX(IJ,J4A+1,KA4_) )   &
+     &               + U4_ * ( A4*NX(IJ,J4A,KB4_) + B4*NX(IJ,J4A+1,KB4_) )
+                  TR = MM(IJ,JJ) * WR * ( X1*X3*(X4-X2) + (X3-X1)*X2*X4 ) * E1(IJ)
+                  SX(IJ,J2A  ,KA2_) = SX(IJ,J2A  ,KA2_) + TR*V2_*A2*QA2_
+                  SX(IJ,J2A+1,KA2_) = SX(IJ,J2A+1,KA2_) + TR*V2_*B2*QA2_
+                  SX(IJ,J2A  ,KB2_) = SX(IJ,J2A  ,KB2_) + TR*U2_*A2*QB2_
+                  SX(IJ,J2A+1,KB2_) = SX(IJ,J2A+1,KB2_) + TR*U2_*B2*QB2_
+                  SX(IJ,J4A  ,KA4_) = SX(IJ,J4A  ,KA4_) - TR*V4_*A4*QA4_
+                  SX(IJ,J4A+1,KA4_) = SX(IJ,J4A+1,KA4_) - TR*V4_*B4*QA4_
+                  SX(IJ,J4A  ,KB4_) = SX(IJ,J4A  ,KB4_) - TR*U4_*A4*QB4_
+                  SX(IJ,J4A+1,KB4_) = SX(IJ,J4A+1,KB4_) - TR*U4_*B4*QB4_
+                ENDDO
+              ENDDO
+            ENDDO
+          ENDIF
 
 !         DEPOSITS AT K1 (SUMMED OVER CURVES IN AS1, AD1) AND AT K3
           FA_ = FA(K1,R0)
